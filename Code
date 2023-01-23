@@ -1,0 +1,48 @@
+#include <SoftwareSerial.h>
+
+// create a software serial object to communicate with the pH sensor
+SoftwareSerial pH_sensor(2, 3); // RX, TX
+
+// define the pins for the pH adjustment circuit
+const int pH_up_pin = 9;
+const int pH_down_pin = 10;
+
+// set the desired pH level
+const float target_pH = 7.0;
+
+void setup() {
+  // initialize serial communication with the computer
+  Serial.begin(9600);
+  // initialize serial communication with the pH sensor
+  pH_sensor.begin(9600);
+  
+  // set the pH adjustment pins as outputs
+  pinMode(pH_up_pin, OUTPUT);
+  pinMode(pH_down_pin, OUTPUT);
+}
+
+void loop() {
+  // read the pH value from the sensor
+  String pH_value = pH_sensor.readStringUntil('\r');
+  // convert the pH value to a float
+  float pH_level = pH_value.toFloat();
+  
+  // check if the pH is above or below the target level
+  if (pH_level < target_pH) {
+    // turn on the pH up circuit
+    digitalWrite(pH_up_pin, HIGH);
+    delay(5000);
+    // turn off the pH up circuit
+    digitalWrite(pH_up_pin, LOW);
+  } else if (pH_level > target_pH) {
+    // turn on the pH down circuit
+    digitalWrite(pH_down_pin, HIGH);
+    delay(5000);
+    // turn off the pH down circuit
+    digitalWrite(pH_down_pin, LOW);
+  }
+  
+  // send the pH level to the computer
+  Serial.println(pH_level);
+  delay(1000);
+}
